@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Hry">
+    <meta name="description" content="Zoznam super hier z CrazyGames - hraj priamo v prehliadači!">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968524.png">
+    <link rel="manifest" href="manifest.json">
+    <title>Hry • CrazyGames</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Poppins:wght@600&amp;display=swap');
+        
+        :root {
+            --primary: #6366f1;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .title-font {
+            font-family: 'Poppins', system_ui, sans-serif;
+            font-weight: 600;
+        }
+
+        .game-link {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .game-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .category-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: linear-gradient(to bottom, #1e2937, #1e2937);
+        }
+
+        .game-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .game-card:active {
+            transform: scale(0.98);
+        }
+
+        .section {
+            scroll-margin-top: 60px;
+        }
+
+        .nav-active {
+            color: #6366f1;
+            border-bottom: 3px solid #6366f1;
+        }
+
+        .search-input {
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .game-item {
+            transition: background-color 0.1s ease;
+        }
+        
+        .game-item:hover {
+            background-color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="w-11 h-11 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-gamepad text-white text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="title-font text-3xl font-bold tracking-tight">Hry</h1>
+                    <p class="text-xs text-slate-400 -mt-1">CrazyGames Hub</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-2">
+                <!-- Coins -->
+                <div onclick="showRewards()" class="px-3 py-1.5 bg-yellow-500/10 text-yellow-400 rounded-2xl text-xs flex items-center gap-x-1.5 cursor-pointer hover:bg-yellow-500/20 transition-colors">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="coinsDisplay" class="font-bold">1240</span>
+                </div>
+                
+                <!-- Install PWA Button -->
+                <button onclick="installApp()" 
+                        class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-2xl text-xs flex items-center gap-x-1.5 font-medium">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="hidden sm:inline">Nainštaluj</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="max-w-3xl mx-auto px-4 pt-4 pb-2 sticky top-[73px] z-40 bg-slate-900">
+        <div class="relative">
+            <input 
+                type="text" 
+                id="searchInput"
+                placeholder="Hľadať hru..." 
+                class="search-input w-full bg-slate-800 border border-slate-700 focus:border-indigo-500 text-white placeholder-slate-400 pl-12 pr-5 py-3.5 rounded-3xl text-base outline-none"
+            >
+            <i class="fa-solid fa-search absolute left-5 top-4 text-slate-400 text-lg"></i>
+        </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto px-4 pb-8">
+        
+        <!-- Quick Stats -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <div onclick="document.getElementById('searchInput').focus()" 
+                 class="flex-shrink-0 px-4 py-2 bg-slate-800 hover:bg-slate-700 transition-colors rounded-2xl text-sm flex items-center gap-x-2 cursor-pointer">
+                <i class="fa-solid fa-bolt text-yellow-400"></i>
+                <span class="font-medium">Action</span>
+            </div>
+            <div onclick="document.getElementById('searchInput').focus()" 
+                 class="flex-shrink-0 px-4 py-2 bg-slate-800 hover:bg-slate-700 transition-colors rounded-2xl text-sm flex items-center gap-x-2 cursor-pointer">
+                <i class="fa-solid fa-car text-red-400"></i>
+                <span class="font-medium">Driving</span>
+            </div>
+            <div onclick="document.getElementById('searchInput').focus()" 
+                 class="flex-shrink-0 px-4 py-2 bg-slate-800 hover:bg-slate-700 transition-colors rounded-2xl text-sm flex items-center gap-x-2 cursor-pointer">
+                <i class="fa-solid fa-puzzle-piece text-emerald-400"></i>
+                <span class="font-medium">Puzzle</span>
+            </div>
+        </div>
+
+        <!-- Rewards & Coins Section -->
+        <div class="mb-8 bg-slate-800 rounded-3xl border border-slate-700 p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-9 h-9 bg-yellow-500/10 text-yellow-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-trophy text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold tracking-tight">Odmeny &amp; Coiny</h2>
+                        <p class="text-xs text-slate-400">Odomkni achievementy a získaj coiny!</p>
+                    </div>
+                </div>
+                <div onclick="claimDailyReward()" class="px-4 py-1.5 bg-yellow-500 hover:bg-yellow-400 transition-colors text-slate-900 text-xs font-bold rounded-2xl flex items-center gap-x-1.5 cursor-pointer">
+                    <i class="fa-solid fa-gift"></i>
+                    <span>Daily Reward</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <!-- Achievement 1 -->
+                <div onclick="unlockAchievement(0)" class="achievement-card bg-slate-700/50 hover:bg-slate-700 transition-colors rounded-2xl p-3 cursor-pointer border border-slate-600" data-ach="0">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-sm font-medium">Prvý krok</div>
+                            <div class="text-xs text-slate-400">Zahraj si prvú hru</div>
+                        </div>
+                        <div class="text-yellow-400"><i class="fa-solid fa-coins"></i> <span class="font-bold">+50</span></div>
+                    </div>
+                    <div class="mt-2 text-[10px] text-emerald-400 hidden unlocked">✓ ODOMKNUTÉ</div>
+                </div>
+                
+                <!-- Achievement 2 -->
+                <div onclick="unlockAchievement(1)" class="achievement-card bg-slate-700/50 hover:bg-slate-700 transition-colors rounded-2xl p-3 cursor-pointer border border-slate-600" data-ach="1">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-sm font-medium">Xbox Explorer</div>
+                            <div class="text-xs text-slate-400">Zahraj si Xbox-inšpirovanú hru</div>
+                        </div>
+                        <div class="text-yellow-400"><i class="fa-solid fa-coins"></i> <span class="font-bold">+120</span></div>
+                    </div>
+                    <div class="mt-2 text-[10px] text-emerald-400 hidden unlocked">✓ ODOMKNUTÉ</div>
+                </div>
+                
+                <!-- Achievement 3 -->
+                <div onclick="unlockAchievement(2)" class="achievement-card bg-slate-700/50 hover:bg-slate-700 transition-colors rounded-2xl p-3 cursor-pointer border border-slate-600" data-ach="2">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-sm font-medium">10 Hier Majster</div>
+                            <div class="text-xs text-slate-400">Zahraj si 10 rôznych hier</div>
+                        </div>
+                        <div class="text-yellow-400"><i class="fa-solid fa-coins"></i> <span class="font-bold">+200</span></div>
+                    </div>
+                    <div class="mt-2 text-[10px] text-emerald-400 hidden unlocked">✓ ODOMKNUTÉ</div>
+                </div>
+                
+                <!-- Achievement 4 -->
+                <div onclick="unlockAchievement(3)" class="achievement-card bg-slate-700/50 hover:bg-slate-700 transition-colors rounded-2xl p-3 cursor-pointer border border-slate-600" data-ach="3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-sm font-medium">Leaderboard King</div>
+                            <div class="text-xs text-slate-400">Dostaň sa do top 10</div>
+                        </div>
+                        <div class="text-yellow-400"><i class="fa-solid fa-coins"></i> <span class="font-bold">+350</span></div>
+                    </div>
+                    <div class="mt-2 text-[10px] text-emerald-400 hidden unlocked">✓ ODOMKNUTÉ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div id="categories">
+            <!-- Action -->
+            <div class="section mb-8" data-category="action">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-red-500/10 text-red-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-fist-raised text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Action</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/ragdoll-archers" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Ragdoll Archers</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/house-of-hazards" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">House of Hazards</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/stickman-clash" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Stickman Clash</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/shell-shockers" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Shell Shockers</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/crazy-flip-3d" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Crazy Flip 3D</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Adventure -->
+            <div class="section mb-8" data-category="adventure">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-compass text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Adventure</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/firestone-idle-rpg" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Firestone Idle RPG</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/escape-from-prison" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Escape From Prison</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/dead-land-survival" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Dead Land Survival</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/magic-world" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Magic World</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/stickman-prison-escape" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Stickman Prison Escape</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Arcade -->
+            <div class="section mb-8" data-category="arcade">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-violet-500/10 text-violet-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-gamepad text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Arcade</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/slice-master" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Slice Master</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/bubble-blast" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Bubble Blast</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/tiny-fishing" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Tiny Fishing</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/helix-jump" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Helix Jump</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/stack-ball" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Stack Ball</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Board -->
+            <div class="section mb-8" data-category="board">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-teal-500/10 text-teal-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-chess text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Board</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/chess-online" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Chess Online</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/checkers-online" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Checkers Online</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/ludo-hero" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Ludo Hero</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/backgammon-online" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Backgammon Online</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/master-chess" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Master Chess</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="section mb-8" data-category="card">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-pink-500/10 text-pink-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-cards text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Card</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/solitaire-classic" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Solitaire Classic</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/spider-solitaire" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Spider Solitaire</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/freecell-solitaire" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">FreeCell Solitaire</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/klondike-solitaire" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Klondike Solitaire</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/gin-rummy-plus" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Gin Rummy Plus</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Clicker -->
+            <div class="section mb-8" data-category="clicker">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-orange-500/10 text-orange-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-hand-pointer text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Clicker</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/capybara-clicker" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Capybara Clicker</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/chill-guy-clicker" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Chill Guy Clicker</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/planet-clicker" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Planet Clicker</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/banana-clicker" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Banana Clicker</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/idle-mining-empire" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Idle Mining Empire</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Driving -->
+            <div class="section mb-8" data-category="driving">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-sky-500/10 text-sky-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-car text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Driving</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/mr-racer" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Mr Racer</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/drift-hunters" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Drift Hunters</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/madalin-stunt-cars-2" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Madalin Stunt Cars 2</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/smash-karts" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Smash Karts</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/rally-racer-dirt" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Rally Racer Dirt</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- .io -->
+            <div class="section mb-8" data-category="io">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-lime-500/10 text-lime-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-globe text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">.io Hry</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/bloxd-io" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Bloxd.io</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/ev-io" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Ev.io</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/shell-shockers" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Shell Shockers</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/krunker-io" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Krunker.io</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/agar-io" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Agar.io</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Puzzle -->
+            <div class="section mb-8" data-category="puzzle">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-puzzle-piece text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Puzzle</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/2048" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">2048</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/cut-the-rope" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Cut the Rope</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/block-blast" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Block Blast</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/mahjong-classic" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Mahjong Classic</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/unblock-it" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Unblock It</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Shooting -->
+            <div class="section mb-8" data-category="shooting">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-rose-500/10 text-rose-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-crosshairs text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Shooting</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/shell-shockers" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Shell Shockers</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/forward-assault" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Forward Assault</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/hazmob-fps" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Hazmob FPS</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/bullet-force" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Bullet Force</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/voxiom" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Voxiom.io</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Simulator -->
+            <div class="section mb-8" data-category="simulator">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-cyan-500/10 text-cyan-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-industry text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Simulator</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/idle-mining-empire" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Idle Mining Empire</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/farm-merge-valley" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Farm Merge Valley</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/airport-security" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Airport Security</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/idle-supermarket-tycoon" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Idle Supermarket Tycoon</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/stickman-climbing" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Stickman Climbing</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sports -->
+            <div class="section mb-8" data-category="sports">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-futbol text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Sports</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/8-ball-billiards-classic" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">8 Ball Billiards Classic</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/soccer-random" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Soccer Random</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/basket-random" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Basket Random</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/tennis-masters" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Tennis Masters</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/golf-battle" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Golf Battle</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Strategy -->
+            <div class="section mb-8" data-category="strategy">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-purple-500/10 text-purple-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-chess-rook text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Strategy</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/clash-of-tanks" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Clash of Tanks</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/tower-vs-goblins" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Tower vs Goblins</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/state-io" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">State.io</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/stick-war" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Stick War</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/age-of-war" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Age of War</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Thinking -->
+            <div class="section mb-8" data-category="thinking">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-slate-500/10 text-slate-300 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-brain text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Thinking</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/2048" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">2048</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/master-chess" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Master Chess</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/sudoku" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Sudoku</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/mahjong-classic" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Mahjong Classic</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/unblock-it" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Unblock It</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Trial -->
+            <div class="section mb-8" data-category="trial">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-yellow-500/10 text-yellow-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-motorcycle text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Trial</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/moto-x3m" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Moto X3M</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/bike-trials-winter" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Bike Trials Winter</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/trials-ice-ride" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Trials Ice Ride</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/moto-maniac" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Moto Maniac</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/extreme-bikers" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Extreme Bikers</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Word -->
+            <div class="section mb-8" data-category="word">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-fuchsia-500/10 text-fuchsia-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-font text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Word</h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <li><a href="https://www.crazygames.com/game/word-wipe" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Word Wipe</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/word-search" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Word Search</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/wordle-unlimited" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Wordle Unlimited</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/word-connect" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Word Connect</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/crossword-puzzle" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Crossword Puzzle</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+            <!-- Xbox & Extras (real + fictional) -->
+            <div class="section mb-8" data-category="xbox">
+                <div class="flex items-center gap-x-3 mb-3 px-1">
+                    <div class="w-8 h-8 bg-green-500/10 text-green-400 rounded-xl flex items-center justify-center">
+                        <i class="fa-brands fa-xbox text-lg"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold tracking-tight">Xbox &amp; Extras <span class="text-xs align-super text-green-400">NEW</span></h2>
+                </div>
+                <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700">
+                    <ul class="divide-y divide-slate-700">
+                        <!-- Real Xbox-vibe games from CrazyGames -->
+                        <li><a href="https://www.crazygames.com/game/traffic-rider-vvq" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Traffic Rider <span class="text-[10px] ml-1 px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded">Xbox</span></span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/polytrack" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">PolyTrack <span class="text-[10px] ml-1 px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded">Xbox</span></span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="https://www.crazygames.com/game/space-waves" target="_blank" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Space Waves</span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        
+                        <!-- Fictional / Made-up games (fan examples) -->
+                        <li><a href="#" onclick="playFictionalGame('Neon Drift X'); return false;" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Neon Drift X <span class="text-[10px] ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded">Fictional ★</span></span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="#" onclick="playFictionalGame('Pixel Heroes Arena'); return false;" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Pixel Heroes Arena <span class="text-[10px] ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded">Fictional ★</span></span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="#" onclick="playFictionalGame('Coin Empire Clicker'); return false;" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Coin Empire Clicker <span class="text-[10px] ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded">Fictional ★</span></span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                        <li><a href="#" onclick="playFictionalGame('Starforge Odyssey'); return false;" class="game-item flex items-center justify-between px-5 py-4 group"><span class="font-medium group-hover:text-indigo-400 transition-colors">Starforge Odyssey <span class="text-[10px] ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded">Fictional ★</span></span><i class="fa-solid fa-play text-indigo-400 opacity-70 group-hover:opacity-100 transition-all"></i></a></li>
+                    </ul>
+                </div>
+                <p class="text-[10px] text-center text-slate-500 mt-2">Fiktívne hry sú len na zábavu ★ — skutočné hry nájdeš na CrazyGames</p>
+            </div>
+
+        </div>
+
+        <div class="text-center py-8 text-slate-500 text-sm">
+            <p>Všetky hry sú hostované na <a href="https://www.crazygames.com" target="_blank" class="text-indigo-400 hover:underline">CrazyGames.com</a></p>
+            <p class="mt-1">Appka funguje offline po prvom načítaní (PWA)</p>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation (app-like) -->
+    <div class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 max-w-3xl mx-auto">
+        <div class="flex justify-around py-2 text-xs">
+            <button onclick="window.scrollTo(0,0)" class="flex flex-col items-center px-4 py-1 text-indigo-400">
+                <i class="fa-solid fa-home text-lg mb-0.5"></i>
+                <span class="font-medium">Domov</span>
+            </button>
+            <button onclick="document.getElementById('searchInput').focus()" class="flex flex-col items-center px-4 py-1 text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-search text-lg mb-0.5"></i>
+                <span class="font-medium">Hľadať</span>
+            </button>
+            <button onclick="showLeaderboard()" class="flex flex-col items-center px-4 py-1 text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-trophy text-lg mb-0.5"></i>
+                <span class="font-medium">Rebríček</span>
+            </button>
+            <button onclick="showRandomGame()" class="flex flex-col items-center px-4 py-1 text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-dice text-lg mb-0.5"></i>
+                <span class="font-medium">Náhodná</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent', '#6366f1');
+        }
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const sections = document.querySelectorAll('.section');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            sections.forEach(section => {
+                const gameItems = section.querySelectorAll('li');
+                let hasVisibleGames = false;
+                
+                gameItems.forEach(item => {
+                    const gameName = item.textContent.toLowerCase();
+                    if (gameName.includes(searchTerm)) {
+                        item.style.display = '';
+                        hasVisibleGames = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide entire section if no games match
+                if (searchTerm === '') {
+                    section.style.display = '';
+                } else {
+                    section.style.display = hasVisibleGames ? '' : 'none';
+                }
+            });
+        });
+        
+        // Random game function
+        function showRandomGame() {
+            const allLinks = document.querySelectorAll('a[href^="https://www.crazygames.com"]');
+            if (allLinks.length === 0) return;
+            
+            const randomIndex = Math.floor(Math.random() * allLinks.length);
+            const randomLink = allLinks[randomIndex];
+            
+            // Highlight effect
+            randomLink.style.transition = 'all 0.1s ease';
+            randomLink.style.backgroundColor = '#6366f130';
+            
+            setTimeout(() => {
+                window.open(randomLink.href, '_blank');
+                randomLink.style.backgroundColor = '';
+            }, 250);
+        }
+        
+        // Keyboard shortcut for search
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+        
+        // PWA install prompt (basic)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            deferredPrompt = e;
+        });
+        
+        // ==================== COINS & REWARDS SYSTEM ====================
+        let coins = parseInt(localStorage.getItem('coins') || '1240');
+        let achievements = JSON.parse(localStorage.getItem('achievements') || '[]');
+        let playCount = parseInt(localStorage.getItem('playCount') || '0');
+        
+        function updateCoinsDisplay() {
+            const el = document.getElementById('coinsDisplay');
+            if (el) el.textContent = coins.toLocaleString();
+        }
+        
+        function addCoins(amount, reason = '') {
+            coins += amount;
+            localStorage.setItem('coins', coins);
+            updateCoinsDisplay();
+            
+            // Nice toast notification
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 bg-yellow-500 text-slate-900 px-4 py-2 rounded-2xl text-sm font-bold shadow-xl z-[100] flex items-center gap-x-2`;
+            toast.innerHTML = `<i class="fa-solid fa-coins"></i> +${amount} coiny ${reason ? '• ' + reason : ''}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2200);
+        }
+        
+        function unlockAchievement(id) {
+            if (achievements.includes(id)) {
+                alert('Tento achievement už máš odomknutý!');
+                return;
+            }
+            
+            const rewards = [50, 120, 200, 350];
+            const names = ['Prvý krok', 'Xbox Explorer', '10 Hier Majster', 'Leaderboard King'];
+            
+            addCoins(rewards[id], names[id]);
+            achievements.push(id);
+            localStorage.setItem('achievements', JSON.stringify(achievements));
+            
+            // Mark as unlocked in UI
+            const card = document.querySelector(`[data-ach="${id}"]`);
+            if (card) {
+                card.classList.add('!bg-emerald-900/30', 'border-emerald-500');
+                const unlockedEl = card.querySelector('.unlocked');
+                if (unlockedEl) unlockedEl.classList.remove('hidden');
+            }
+        }
+        
+        function claimDailyReward() {
+            const lastClaim = localStorage.getItem('lastDailyClaim');
+            const today = new Date().toDateString();
+            
+            if (lastClaim === today) {
+                alert('Daily reward už si dnes vybral! Vráť sa zajtra.');
+                return;
+            }
+            
+            const reward = Math.floor(Math.random() * 80) + 70; // 70-150
+            addCoins(reward, 'Daily Reward');
+            localStorage.setItem('lastDailyClaim', today);
+        }
+        
+        function showRewards() {
+            // Scroll to rewards section
+            const rewardsSection = document.querySelector('.bg-yellow-500\\/10');
+            if (rewardsSection) {
+                rewardsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // fallback
+                window.scrollTo({ top: 200, behavior: 'smooth' });
+            }
+        }
+        
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert('Appku môžeš nainštalovať cez menu prehliadača (⋮ → Pridať na domovskú obrazovku)');
+            }
+        }
+        
+        // ==================== LEADERBOARD ====================
+        function showLeaderboard() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[200]';
+            modal.innerHTML = `
+                <div class="bg-slate-800 w-full sm:w-[420px] rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700 max-h-[85vh] overflow-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold flex items-center gap-x-2"><i class="fa-solid fa-trophy text-yellow-400"></i> Rebríček</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-2xl leading-none text-slate-400 hover:text-white">×</button>
+                    </div>
+                    
+                    <div class="mb-4 p-3 bg-slate-700/50 rounded-2xl text-center">
+                        <div class="text-xs text-slate-400">Tvoje skóre</div>
+                        <div class="text-3xl font-bold text-yellow-400" id="userScore">${coins}</div>
+                        <div class="text-xs mt-1">Pozícia: <span class="font-bold">#${Math.floor(Math.random()*8)+4}</span> z 1248 hráčov</div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center bg-slate-700 p-3 rounded-2xl">
+                            <div class="flex items-center gap-x-3"><span class="font-mono w-6 text-yellow-400">#1</span> <span class="font-medium">xXDragonSlayerXx</span></div>
+                            <div class="font-bold text-yellow-400">18420</div>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-700 p-3 rounded-2xl">
+                            <div class="flex items-center gap-x-3"><span class="font-mono w-6 text-yellow-400">#2</span> <span class="font-medium">PixelQueen_SK</span></div>
+                            <div class="font-bold text-yellow-400">16250</div>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-700 p-3 rounded-2xl">
+                            <div class="flex items-center gap-x-3"><span class="font-mono w-6 text-yellow-400">#3</span> <span class="font-medium">NoobMaster420</span></div>
+                            <div class="font-bold text-yellow-400">14980</div>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-700 p-3 rounded-2xl">
+                            <div class="flex items-center gap-x-3"><span class="font-mono w-6">#4</span> <span class="font-medium">You (Ty)</span></div>
+                            <div class="font-bold text-emerald-400">${coins}</div>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-700/60 p-3 rounded-2xl opacity-75">
+                            <div class="flex items-center gap-x-3"><span class="font-mono w-6">#5</span> <span class="font-medium">CrazyGamerSK</span></div>
+                            <div class="font-bold">8750</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 text-center">
+                        <button onclick="addCoins(50, 'Leaderboard bonus'); this.closest('.fixed').remove()" 
+                                class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 transition-colors text-slate-900 font-bold rounded-2xl text-sm">
+                            +50 coinov za účasť v rebríčku
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // ==================== FICTIONAL GAMES ====================
+        function playFictionalGame(gameName) {
+            const reward = Math.floor(Math.random() * 40) + 25; // 25-65 coins
+            addCoins(reward, gameName);
+            
+            // Fun modal for fictional game
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-[200] p-4';
+            modal.innerHTML = `
+                <div class="bg-slate-800 max-w-sm w-full rounded-3xl p-6 text-center border border-purple-500/30">
+                    <div class="text-6xl mb-4">🎮</div>
+                    <h3 class="text-2xl font-bold mb-1">${gameName}</h3>
+                    <p class="text-purple-400 text-sm mb-4">Fiktívna hra • Len na zábavu</p>
+                    
+                    <div class="bg-slate-700/50 rounded-2xl p-4 mb-5 text-left text-sm">
+                        <p><strong>Žáner:</strong> ${gameName.includes('Drift') || gameName.includes('Neon') ? 'Racing' : gameName.includes('Clicker') ? 'Clicker' : 'Adventure/Action'}</p>
+                        <p><strong>Platforma:</strong> Browser + Xbox Cloud (demo)</p>
+                        <p class="mt-2 text-emerald-400">Ďakujeme za hranie! Získal si ${reward} coinov.</p>
+                    </div>
+                    
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="w-full py-3.5 bg-purple-600 hover:bg-purple-500 transition-colors rounded-2xl font-bold">
+                        Zatvoriť
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // ==================== INIT & EVENT LISTENERS ====================
+        function init() {
+            initializeTailwind();
+            updateCoinsDisplay();
+            
+            // Restore unlocked achievements UI
+            achievements.forEach(id => {
+                const card = document.querySelector(`[data-ach="${id}"]`);
+                if (card) {
+                    card.classList.add('!bg-emerald-900/30', 'border-emerald-500');
+                    const unlockedEl = card.querySelector('.unlocked');
+                    if (unlockedEl) unlockedEl.classList.remove('hidden');
+                }
+            });
+            
+            // Award coins when clicking real game links (play simulation)
+            const realGameLinks = document.querySelectorAll('a[href^="https://www.crazygames.com"]');
+            realGameLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    playCount++;
+                    localStorage.setItem('playCount', playCount);
+                    
+                    // 70% chance to get coins for playing
+                    if (Math.random() > 0.3) {
+                        const bonus = Math.floor(Math.random() * 15) + 8;
+                        setTimeout(() => {
+                            addCoins(bonus, 'Za hranie');
+                        }, 800);
+                    }
+                    
+                    // Auto unlock first achievement
+                    if (!achievements.includes(0)) {
+                        setTimeout(() => unlockAchievement(0), 1200);
+                    }
+                    
+                    // Unlock "10 games" if enough plays
+                    if (playCount >= 10 && !achievements.includes(2)) {
+                        setTimeout(() => unlockAchievement(2), 1500);
+                    }
+                });
+            });
+            
+            // Touch feedback
+            const gameItems = document.querySelectorAll('.game-item');
+            gameItems.forEach(item => {
+                item.addEventListener('touchstart', () => {
+                    item.style.backgroundColor = '#475569';
+                }, {passive: true});
+                
+                item.addEventListener('touchend', () => {
+                    setTimeout(() => {
+                        item.style.backgroundColor = '';
+                    }, 150);
+                }, {passive: true});
+            });
+            
+            // PWA hint
+            if (!localStorage.getItem('pwaHintShown')) {
+                setTimeout(() => {
+                    const hint = document.createElement('div');
+                    hint.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-800 text-xs px-4 py-2 rounded-2xl border border-slate-600 shadow-xl flex items-center gap-x-2 z-50';
+                    hint.innerHTML = `
+                        <span>Tip: Pridaj si appku na domovskú obrazovku!</span>
+                        <button onclick="this.parentElement.remove(); localStorage.setItem('pwaHintShown', 'true')" class="text-indigo-400 font-medium">OK</button>
+                    `;
+                    document.body.appendChild(hint);
+                }, 4500);
+            }
+            
+            console.log('%c[Hry App v2] Coins, Leaderboard & Rewards ready! 🎮', 'color:#64748b');
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "Hry - CrazyGames",
+  "short_name": "Hry",
+  "description": "Zoznam super hier z CrazyGames. Hraj priamo v prehliadači na iPhone!",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5968/5968524.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5968/5968524.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "scope": "/",
+  "lang": "sk",
+  "categories": ["games", "entertainment"]
+}
